@@ -22,7 +22,7 @@ class Book(models.Model):
     title = models.CharField(max_length=255, verbose_name='название')
     author = models.ForeignKey(to=Author, on_delete=models.SET_NULL, **NULLABLE)
     publish_year = models.DateField(verbose_name='дата публикации', **NULLABLE)
-    isbn_number = models.PositiveIntegerField(verbose_name='isbn номер')
+    isbn_number = models.CharField(max_length=13, unique=True, verbose_name='isbn номер')
     description = models.TextField(verbose_name='краткое описание', **NULLABLE)
 
     def __str__(self):
