@@ -14,6 +14,6 @@ class UserCreateAPIView(generics.CreateAPIView):
         response = super().post(request, *args, **kwargs)
         if response.status_code == status.HTTP_201_CREATED:
             user_email = response.data.get('email')
-            #welcome_message.delay(user_email)
+            welcome_message.delay(user_email)
         return response
 
