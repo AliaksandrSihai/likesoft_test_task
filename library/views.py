@@ -20,3 +20,12 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     pagination_class = ListPagination
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        ordering = self.request.query_params.get('ordering', 'title')
+        if ordering:
+            return Book.objects.all().order_by(ordering)
+
+        return Book.objects.all()
+
+
