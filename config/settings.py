@@ -135,11 +135,10 @@ AUTH_USER_MODEL = 'users.User'
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
 CELERY_TASK_TRACK_STARTED = os.getenv('CELERY_TASK_TRACK_STARTED')
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
-
-# CELERY_BEAT_SCHEDULE = {
-#     'check_habit': {
-#         'task': 'habit.tasks.periodical_task',
-#         'schedule': timedelta(minutes=1),
-#     },
-# }
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
