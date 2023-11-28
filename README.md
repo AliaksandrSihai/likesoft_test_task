@@ -1,1 +1,0 @@
-# likesoft_test_task

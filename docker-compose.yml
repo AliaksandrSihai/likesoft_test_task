@@ -1,0 +1,89 @@
+version: '3.11'
+
+services:
+  redis:
+    image: redis
+    container_name: redis
+    restart: on-failure
+    command: redis-server
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      timeout: 10s
+      retries: 3
+
+  mysql_db:
+    image: mysql
+    container_name: mysql_db
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+    - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    - MYSQL_USER=${MYSQL_USER}
+    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    - MYSQL_DATABASE=${MYSQL_DATABASE}
+    - MYSQL_HOST=${MYSQL_HOST}
+    - MYSQL_PORT=${MYSQL_PORT}
+    volumes:
+      - ./mysql_db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123qwe456" ]
+      timeout: 30s
+      retries: 3
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile_celery
+    container_name: celery
+    restart: on-failure
+    command: celery -A config worker  --loglevel=info --uid=nobody
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - CELERY_TASK_TRACK_STARTED=${CELERY_TASK_TRACK_STARTED}
+    volumes:
+      - .:/likesoft
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "celery", "-A", "config", "inspect", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  library:
+    build:
+      dockerfile: Dockerfile_drf
+      context: .
+    container_name: library
+    restart: on-failure
+    command: "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./config:/app/config
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery:
+        condition: service_healthy
+
+
+volumes:
+  mysql_data: null
+  likesoft: null
+
+
+
+
+
